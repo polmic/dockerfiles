@@ -1,0 +1,43 @@
+version: "3.3"
+
+services:
+  mongo:
+    image: mongo:latest
+    hostname: mongo
+    container_name: catmotion-mongo
+    restart: always
+    command: ["--bind_ip", "0,0,0,0"]
+    networks:
+      - catmotion-network
+
+  api:
+    #image: catmotion_api:latest
+    build:
+      context: ./catmotion-sb/
+      dockerfile: Dockerfile
+    container_name: catmotion-api
+    restart: always
+    ports:
+      - 31080:8080
+    depends_on:
+      - mongo
+    volumes:
+      - /home/pmserv/motion_videos/:/motion_videos/
+    networks:
+      - catmotion-network
+
+  angular:
+    #image: catmotion_angular:latest
+    build:
+      context: ./catmotion-ng/
+      dockerfile: Dockerfile
+    container_name: catmotion-angular
+    restart: always
+    ports:
+      - 31420:80
+    networks:
+      - catmotion-network
+
+networks:
+  catmotion-network:
+    driver: bridge
